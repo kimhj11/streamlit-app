@@ -76,23 +76,63 @@ def split_text(text, min_len=80, max_len=110):
     
     return combined
 
+import streamlit as st
+from pptx import Presentation
+from pptx.util import Pt, Inches
+import io
+
+# 제목
+st.title("Prompt to PPT")
+
+# 입력창
+text_input = st.text_area("프롬프트를 입력하세요", height=300)
+
+# 파일 업로드
+uploaded_file = st.file_uploader("PPT 양식 파일을 업로드하세요", type=["pptx"])
+
+# 슬라이드 구분
+def split_text(text):
+    return [slide.strip() for slide in text.split("\n") if slide.strip()]
+
+# PPT 생성
 def create_ppt(slides, filename):
-    prs = Presentation("ppt_sample.pptx")
-    blank_slide_layout = prs.slide_layouts[1]
+    prs = Presentation(filename)
+    blank_slide_layout = prs.slide_layouts[6]  # 완전 빈 슬라이드 (Title Only가 아님)
 
     for slide_text in slides:
         slide = prs.slides.add_slide(blank_slide_layout)
-        body = slide.shapes.placeholders[1]
-        tf = body.text_frame
-        tf.clear()
-        p = tf.paragraphs[0]
+
+        # 텍스트박스 새로 추가
+        left = Inches(1)
+        top = Inches(2)
+        width = Inches(8)
+        height = Inches(4)
+        textbox = slide.shapes.add_textbox(left, top, width, height)
+        tf = textbox.text_frame
+        p = tf.add_paragraph()
         p.text = slide_text
-        p.font.size = Pt(24)
-    
+        p.font.size = Pt(40)  # 40pt
+        p.font.name = '맑은 고딕'  # 맑은 고딕
+        p.alignment = 1  # 가운데 정렬
+
     ppt_io = io.BytesIO()
     prs.save(ppt_io)
     ppt_io.seek(0)
     return ppt_io
+
+# 변환 버튼
+if st.button("PPT 변환하기"):
+    if text_input and uploaded_file:
+        slides = split_text(text_input)
+        ppt_file = create_ppt(slides, uploaded_file)
+        st.download_button(
+            label="PPT 다운로드",
+            data=ppt_file,
+            file_name="converted_ppt.pptx",
+            mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        )
+    else:
+        st.error("프롬프트와 PPT 양식 파일을 모두 입력하세요.")
 
 def estimate_time(text):
     text_no_space = re.sub(r'\s+', '', text)
