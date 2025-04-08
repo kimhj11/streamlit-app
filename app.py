@@ -76,50 +76,23 @@ def split_text(text, min_len=80, max_len=110):
     
     return combined
 
-import streamlit as st
-from pptx import Presentation
-from pptx.util import Pt, Inches
-import io
-
-# PPT 생성
 def create_ppt(slides, filename):
-    prs = Presentation(filename)
-    blank_slide_layout = prs.slide_layouts[6]  # 완전 빈 슬라이드 (Title Only가 아님)
+    prs = Presentation("ppt_sample.pptx")
+    blank_slide_layout = prs.slide_layouts[1]
 
     for slide_text in slides:
         slide = prs.slides.add_slide(blank_slide_layout)
-
-        # 텍스트박스 새로 추가
-        left = Inches(1)
-        top = Inches(2)
-        width = Inches(8)
-        height = Inches(4)
-        textbox = slide.shapes.add_textbox(left, top, width, height)
-        tf = textbox.text_frame
-        p = tf.add_paragraph()
+        body = slide.shapes.placeholders[1]
+        tf = body.text_frame
+        tf.clear()
+        p = tf.paragraphs[0]
         p.text = slide_text
-        p.font.size = Pt(40)  # 40pt
-        p.font.name = '맑은 고딕'  # 맑은 고딕
-        p.alignment = 1  # 가운데 정렬
-
+        p.font.size = Pt(40)
+    
     ppt_io = io.BytesIO()
     prs.save(ppt_io)
     ppt_io.seek(0)
     return ppt_io
-
-# 변환 버튼
-if st.button("PPT 변환하기"):
-    if text_input and uploaded_file:
-        slides = split_text(text_input)
-        ppt_file = create_ppt(slides, uploaded_file)
-        st.download_button(
-            label="PPT 다운로드",
-            data=ppt_file,
-            file_name="converted_ppt.pptx",
-            mime="application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        )
-    else:
-        st.error("프롬프트와 PPT 양식 파일을 모두 입력하세요.")
 
 def estimate_time(text):
     text_no_space = re.sub(r'\s+', '', text)
@@ -163,23 +136,4 @@ if prompt:
           file_name=f"{filename}.pptx",
          mime="application/vnd.openxmlformats-officedocument.presentationml.presentation"
     )
-    st.toast('PPT 파일이 성공적으로 생성되었습니다!', icon='🎉')
-
-    # 페이지 하단에 고정된 문의사항 문구 추가
-footer = """
-    <style>
-        .footer {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            font-size: 0.9em;
-            color: #666;
-            z-index: 100;
-        }
-    </style>
-    <div class="footer">
-        문의사항: kimhj11@visang.com
-    </div>
-"""
-st.markdown(footer, unsafe_allow_html=True)
-
+    st.toast('PPT 파일이 성공적으로 생성되었습니다!', icon='🎉') 
