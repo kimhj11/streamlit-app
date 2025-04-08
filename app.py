@@ -1,6 +1,7 @@
 import streamlit as st
 from pptx import Presentation
-from pptx.util import Pt
+from pptx.util import Inches, Pt
+from pptx.enum.text import MSO_AUTO_SIZE
 import re
 import io
 from PIL import Image
@@ -76,22 +77,40 @@ def split_text(text, min_len=80, max_len=110):
     
     return combined
 
-def create_ppt(slides, filename, template_file=None):
-    if template_file:
-        prs = Presentation(template_file)
-    else:
-        prs = Presentation("ppt_sample.pptx")
+def create_ppt(slides):
+    prs = Presentation("ppt_sample.pptx")  # 항상 ppt_sample.pptx를 사용
     blank_slide_layout = prs.slide_layouts[1]
+
 
     for slide_text in slides:
         slide = prs.slides.add_slide(blank_slide_layout)
         body = slide.shapes.placeholders[1]
+
+        # 텍스트 상자 오토사이즈 설정 (자동 글자 크기 조절)
+        body.text_frame.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
+
+        # 텍스트 상자 크기 고정
+        body.locked = True  # 필요하면 넣어도 되고, 안 넣어도 됨
+
         tf = body.text_frame
         tf.clear()
         p = tf.paragraphs[0]
         p.text = slide_text
-        p.font.size = Pt(40)        # 폰트 크기 설정
-        p.font.name = '맑은 고딕'    # 폰트 이름 설정
+        p.font.name = '맑은 고딕'
+        p.font.size = Pt(40)  # 초기 폰트 크기
+
+        # 글자 수에 따라 폰트 크기 조절
+        font_size = 40  # 기본 폰트 크기
+
+        if len(slide_text) > 50:
+            font_size = 36
+        if len(slide_text) > 100:
+            font_size = 34
+
+        if font_size < 34:
+            font_size = 34
+
+        p.font.size = Pt(font_size)
 
     ppt_io = io.BytesIO()
     prs.save(ppt_io)
@@ -133,7 +152,7 @@ if prompt:
             st.info("📢 차시당 20~25분 분량을 권장드립니다.")
 
     if st.button("✅ 이대로 PPT로 변환하기"):
-        ppt_file = create_ppt(slides, filename)
+        ppt_file = create_ppt(slides)
         st.download_button(
             label="📥 다운로드",
           data=ppt_file,
