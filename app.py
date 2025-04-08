@@ -84,15 +84,20 @@ def create_ppt(slides):
 
     for slide_text in slides:
         slide = prs.slides.add_slide(blank_slide_layout)
-        body = slide.shapes.placeholders[1]
+    
+        # 텍스트박스 생성
+        left = Inches(0.5)
+        top = Inches(1)
+        width = Inches(8)
+        height = Inches(5)
+        txBox = slide.shapes.add_textbox(left, top, width, height)
+        tf = txBox.text_frame
+        tf.word_wrap = True  # 텍스트 줄바꿈 활성화
 
-        # 텍스트 상자 오토사이즈 설정 (자동 글자 크기 조절)
-        body.text_frame.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
+        # 오토사이즈 (자동 글자 크기 조절)
+        tf.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
 
-        # 텍스트 상자 크기 고정
-        body.locked = True  # 필요하면 넣어도 되고, 안 넣어도 됨
-
-        tf = body.text_frame
+        # 텍스트 지우고 다시 쓰기
         tf.clear()
         p = tf.paragraphs[0]
         p.text = slide_text
@@ -100,16 +105,13 @@ def create_ppt(slides):
         p.font.size = Pt(40)  # 초기 폰트 크기
 
         # 글자 수에 따라 폰트 크기 조절
-        font_size = 40  # 기본 폰트 크기
-
-        if len(slide_text) > 50:
-            font_size = 36
+        font_size = 40
         if len(slide_text) > 100:
             font_size = 34
-
+        if len(slide_text) > 50:
+            font_size = 36
         if font_size < 34:
             font_size = 34
-
         p.font.size = Pt(font_size)
 
     ppt_io = io.BytesIO()
