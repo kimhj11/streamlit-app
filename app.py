@@ -77,19 +77,16 @@ def split_text(text, min_len=80, max_len=110):
     
     return combined
 
-def create_ppt(slides):
-    prs = Presentation("ppt_sample.pptx")  # 항상 ppt_sample.pptx를 사용
-    blank_slide_layout = prs.slide_layouts[1]
+from pptx.enum.text import MSO_AUTO_SIZE  # 함수 위에 import도 꼭!
 
+def create_ppt(slides):
+    prs = Presentation("ppt_sample.pptx")  # ppt_sample.pptx 템플릿 사용
+    blank_slide_layout = prs.slide_layouts[1]  # 텍스트 상자 포함된 레이아웃
 
     for slide_text in slides:
         slide = prs.slides.add_slide(blank_slide_layout)
-    
-        # 텍스트박스 생성
-        left = Inches(0.5)
-        top = Inches(1)
-        width = Inches(8)
-        height = Inches(5)
+
+        # 템플릿 안의 기존 텍스트 상자 사용
         textbox = None
         for shape in slide.shapes:
             if shape.has_text_frame:
@@ -99,25 +96,20 @@ def create_ppt(slides):
         if not textbox:
             continue
 
-        tf = textbox.text_frame 
+        tf = textbox.text_frame
+        tf.clear()
         tf.word_wrap = True
         tf.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
 
-        # 텍스트 지우고 다시 쓰기
-        tf.clear()
         p = tf.paragraphs[0]
         p.text = slide_text
         p.font.name = '맑은 고딕'
-        p.font.size = Pt(40)  # 초기 폰트 크기
 
-        # 글자 수에 따라 폰트 크기 조절
         font_size = 40
         if len(slide_text) > 100:
             font_size = 34
-        if len(slide_text) > 50:
+        elif len(slide_text) > 50:
             font_size = 36
-        if font_size < 34:
-            font_size = 34
         p.font.size = Pt(font_size)
 
     ppt_io = io.BytesIO()
