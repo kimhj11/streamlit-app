@@ -160,3 +160,13 @@ if prompt:
          mime="application/vnd.openxmlformats-officedocument.presentationml.presentation"
     )
     st.toast('PPT 파일이 성공적으로 생성되었습니다!', icon='🎉') 
+    
+st.markdown(
+    """
+    <hr style='margin-top: 3rem; margin-bottom: 1rem;'>
+    <div style='text-align: center; font-size: 0.9rem; color: #555;'>
+        📩 문의: <a href="mailto:kimhj11@visang.com" style='color: #3366cc; text-decoration: none;'>kimhj11@visang.com</a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
