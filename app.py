@@ -81,19 +81,6 @@ from pptx import Presentation
 from pptx.util import Pt, Inches
 import io
 
-# 제목
-st.title("Prompt to PPT")
-
-# 입력창
-text_input = st.text_area("프롬프트를 입력하세요", height=300)
-
-# 파일 업로드
-uploaded_file = st.file_uploader("PPT 양식 파일을 업로드하세요", type=["pptx"])
-
-# 슬라이드 구분
-def split_text(text):
-    return [slide.strip() for slide in text.split("\n") if slide.strip()]
-
 # PPT 생성
 def create_ppt(slides, filename):
     prs = Presentation(filename)
