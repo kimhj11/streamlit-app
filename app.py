@@ -80,7 +80,7 @@ def create_ppt(slides, filename, template_file=None):
     if template_file:
         prs = Presentation(template_file)
     else:
-        prs = Presentation("ppt_sample_pptx")
+        prs = Presentation("ppt_sample.pptx")
     blank_slide_layout = prs.slide_layouts[1]
 
     for slide_text in slides:
