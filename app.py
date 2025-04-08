@@ -90,11 +90,17 @@ def create_ppt(slides):
         top = Inches(1)
         width = Inches(8)
         height = Inches(5)
-        txBox = slide.shapes.add_textbox(left, top, width, height)
-        tf = txBox.text_frame
-        tf.word_wrap = True  # 텍스트 줄바꿈 활성화
+        textbox = None
+        for shape in slide.shapes:
+            if shape.has_text_frame:
+                textbox = shape
+                break
 
-        # 오토사이즈 (자동 글자 크기 조절)
+        if not textbox:
+            continue
+
+        tf = textbox.text_frame 
+        tf.word_wrap = True
         tf.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
 
         # 텍스트 지우고 다시 쓰기
