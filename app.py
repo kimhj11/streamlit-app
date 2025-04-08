@@ -76,8 +76,11 @@ def split_text(text, min_len=80, max_len=110):
     
     return combined
 
-def create_ppt(slides, filename):
-    prs = Presentation("ppt_sample.pptx")
+def create_ppt(slides, filename, template_file=None):
+    if template_file:
+        prs = Presentation(template_file)
+    else:
+        prs = Presentation("ppt_sample_pptx")
     blank_slide_layout = prs.slide_layouts[1]
 
     for slide_text in slides:
@@ -87,8 +90,9 @@ def create_ppt(slides, filename):
         tf.clear()
         p = tf.paragraphs[0]
         p.text = slide_text
-        p.font.size = Pt(40)
-    
+        p.font.size = Pt(40)        # 폰트 크기 설정
+        p.font.name = '맑은 고딕'    # 폰트 이름 설정
+
     ppt_io = io.BytesIO()
     prs.save(ppt_io)
     ppt_io.seek(0)
